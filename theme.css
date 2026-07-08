@@ -1,0 +1,144 @@
+/* =============================================================================
+   @pareo/tokens — the single source of truth for the Pareo design system.
+
+   Framework-agnostic. Consumed by every Pareo surface (marketing site,
+   knowledge base, desk tools) via:
+
+       @import "tailwindcss";
+       @import "@pareo/tokens/theme.css";
+
+   Contains ONLY tokens + a minimal base layer. App-specific animations,
+   component classes and page chrome live in each app's own stylesheet.
+
+   Theming model
+   -------------
+   Colors are stored as space-separated RGB channel triplets on :root and
+   consumed as rgb(var(--x-rgb) / <alpha>). A single palette swap under
+   [data-theme="light"] re-themes the whole app, because every semantic token
+   and every alpha tint resolves through the same triplets. :root carries the
+   dark values as the no-JS fallback; the consuming app stamps data-theme on
+   <html> pre-paint.
+
+   Fonts are declared as *values*, not @font-face loads — each app loads
+   IBM Plex its own way (next/font in React, Fontsource in Svelte) and exposes
+   the family through --font-ibm / --font-ibm-mono. The fallback strings keep
+   these tokens valid even before the app wires a loader.
+   ============================================================================= */
+
+/* ---- Palette primitives: flip between dark (default) and light ------------- */
+:root,
+:root[data-theme="dark"] {
+  --ink-rgb: 255 255 255;        /* text / foreground              */
+  --bg-rgb: 10 10 18;            /* page background     (#0A0A12)  */
+  --card-rgb: 22 22 42;          /* card surface        (#16162A)  */
+  --surface-rgb: 19 19 31;       /* muted / inputs      (#13131F)  */
+  --navy-rgb: 13 13 26;          /* deepest surface     (#0D0D1A)  */
+  --brand-rgb: 123 92 245;       /* brand violet        (#7B5CF5)  */
+  --brand-ink-rgb: 184 156 255;  /* readable brand text (#B89CFF)  */
+  --brand-hover-rgb: 109 78 224; /* brand pressed/hover (#6D4EE0)  */
+}
+
+:root[data-theme="light"] {
+  --ink-rgb: 20 23 45;           /* near-black ink      (#14172D)  */
+  --bg-rgb: 251 251 254;         /* canvas              (#FBFBFE)  */
+  --card-rgb: 255 255 255;       /* white surface       (#FFFFFF)  */
+  --surface-rgb: 247 248 252;    /* surface-2           (#F7F8FC)  */
+  --navy-rgb: 237 239 252;       /* soft indigo tint    (#EDEFFC)  */
+  --brand-rgb: 123 92 245;       /* brand violet (kept vivid)      */
+  --brand-ink-rgb: 108 71 179;   /* deep violet, AA on white (#6C47B3) */
+  --brand-hover-rgb: 109 78 224; /* brand pressed/hover            */
+}
+
+@theme {
+  /* ---- Type: IBM Plex everywhere. Apps expose the loaded family through
+     --font-ibm / --font-ibm-mono; the fallback keeps these valid pre-load. -- */
+  --font-sans: var(--font-ibm, "IBM Plex Sans"), system-ui, sans-serif;
+  --font-display: var(--font-ibm, "IBM Plex Sans"), system-ui, sans-serif;
+  --font-mono: var(--font-ibm-mono, "IBM Plex Mono"), ui-monospace, monospace;
+
+  /* ---- Semantic color tokens (shadcn vocabulary) — all flip with the theme -- */
+  --color-background: rgb(var(--bg-rgb));
+  --color-foreground: rgb(var(--ink-rgb));
+  --color-card: rgb(var(--card-rgb));
+  --color-card-foreground: rgb(var(--ink-rgb));
+  --color-popover: rgb(var(--card-rgb));
+  --color-popover-foreground: rgb(var(--ink-rgb));
+  --color-primary: rgb(var(--brand-rgb));
+  --color-primary-foreground: #ffffff;
+  --color-primary-light: rgb(var(--brand-ink-rgb));
+  --color-primary-hover: rgb(var(--brand-hover-rgb));
+  --color-secondary: rgb(var(--navy-rgb));
+  --color-secondary-foreground: rgb(var(--ink-rgb));
+  --color-muted: rgb(var(--surface-rgb));
+  --color-muted-foreground: rgb(var(--ink-rgb) / 0.6);
+  --color-accent: rgb(var(--surface-rgb));
+  --color-accent-foreground: rgb(var(--ink-rgb));
+  --color-destructive: hsl(0 62.8% 50%);
+  --color-destructive-foreground: #ffffff;
+  --color-border: rgb(var(--brand-rgb) / 0.15);
+  --color-input: rgb(var(--surface-rgb));
+  --color-ring: rgb(var(--brand-rgb));
+
+  /* ---- Three-step text hierarchy (replaces ad-hoc inline white/ink alphas) -- */
+  --color-ink: rgb(var(--ink-rgb));
+  --color-ink-soft: rgb(var(--ink-rgb) / 0.65);
+  /* 0.5 (not 0.45) so faint text clears the 3:1 UI threshold in the light theme,
+     where alpha composites over a near-white canvas. See docs/adr/0001. */
+  --color-ink-faint: rgb(var(--ink-rgb) / 0.5);
+
+  /* ---- Fixed status colors (identical in both themes) ---------------------- */
+  --color-success: hsl(142 70% 45%);
+  --color-warning: hsl(38 92% 50%);
+  --color-info: hsl(217 91% 65%);
+
+  /* ---- Brand aliases (legacy .bg-pareo-*, .text-purple call sites) ---------- */
+  --color-navy: rgb(var(--navy-rgb));
+  --color-surface: rgb(var(--surface-rgb));
+  --color-deep-card: rgb(var(--card-rgb));
+  --color-purple: rgb(var(--brand-rgb));
+  --color-purple-dim: rgb(var(--brand-rgb) / 0.12);
+
+  /* ---- Base radius scale (Tailwind rounded-sm/md/lg utilities) -------------- */
+  --radius-sm: calc(0.5rem - 4px); /* 4px  */
+  --radius-md: calc(0.5rem - 2px); /* 6px  */
+  --radius-lg: 0.5rem;             /* 8px  */
+
+  /* ---- Semantic component radii (referenced by shared components) ----------- */
+  --radius-field: 8px;
+  --radius-button: 10px;
+  --radius-card: 14px;
+  --radius-panel: 18px;
+  --radius-pill: 999px;
+}
+
+/* ---- Canonical base layer — consistent across every Pareo surface --------- */
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+
+  mark {
+    background-color: rgb(var(--brand-rgb) / 0.25);
+    border-radius: 2px;
+    padding: 0 2px;
+    font-weight: 600;
+    color: rgb(var(--brand-ink-rgb));
+  }
+
+  ::selection {
+    background-color: rgb(var(--brand-rgb) / 0.35);
+    color: rgb(var(--ink-rgb));
+  }
+}

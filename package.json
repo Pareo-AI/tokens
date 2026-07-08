@@ -1,0 +1,24 @@
+{
+  "name": "@pareo/tokens",
+  "version": "0.1.0",
+  "description": "The single source of truth for the Pareo design system — brand colors, type, radii and theming, framework-agnostic.",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pareo-AI/tokens.git"
+  },
+  "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
+  "exports": {
+    "./theme.css": "./theme.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "theme.css"
+  ],
+  "scripts": {
+    "test": "node --test"
+  }
+}
