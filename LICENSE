@@ -1,0 +1,17 @@
+Copyright (c) 2026 Pareo (Jonathan Kaleve). All rights reserved.
+
+This repository holds the Pareo design system: brand color, type and theming
+tokens. It is public so that the Pareo surfaces which consume it can be built
+and reviewed in the open. That is not a grant of rights to reuse it.
+
+No license to use, copy, modify or distribute this material is granted, except:
+
+  1. You may read it, and quote short excerpts in order to discuss, review or
+     report problems with it.
+  2. You may reproduce it as far as building, running or contributing to a
+     Pareo project that depends on this package requires.
+
+"Pareo", the Pareo marks, logo and brand colors are trademarks of their owner.
+Nothing here licenses their use.
+
+To use any of this for something else, ask: jonathan@pareo.ai
