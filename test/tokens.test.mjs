@@ -1,9 +1,9 @@
-import { test } from "node:test";
-import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 
-const css = readFileSync(fileURLToPath(new URL("../theme.css", import.meta.url)), "utf8");
+const css = readFileSync(fileURLToPath(new URL('../theme.css', import.meta.url)), 'utf8');
 
 /* ---- tiny CSS helpers ------------------------------------------------------ */
 
@@ -11,12 +11,16 @@ const css = readFileSync(fileURLToPath(new URL("../theme.css", import.meta.url))
 function block(selector) {
   const start = css.indexOf(selector);
   assert.ok(start !== -1, `selector not found: ${selector}`);
-  const open = css.indexOf("{", start);
+  const open = css.indexOf('{', start);
   // walk to the matching close brace (handles nested-free @theme/:root blocks)
-  let depth = 0, i = open;
+  let depth = 0,
+    i = open;
   for (; i < css.length; i++) {
-    if (css[i] === "{") depth++;
-    else if (css[i] === "}") { depth--; if (depth === 0) break; }
+    if (css[i] === '{') depth++;
+    else if (css[i] === '}') {
+      depth--;
+      if (depth === 0) break;
+    }
   }
   const body = css.slice(open + 1, i);
   const out = {};
@@ -26,7 +30,7 @@ function block(selector) {
 
 const dark = block(':root[data-theme="dark"]');
 const light = block('[data-theme="light"]');
-const theme = block("@theme");
+const theme = block('@theme');
 
 /* ---- color math (sRGB → relative luminance → WCAG contrast) ---------------- */
 
@@ -34,7 +38,7 @@ const triplet = (obj, name) => obj[name].split(/\s+/).map(Number); // "10 10 18"
 
 function lin(c) {
   c /= 255;
-  return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
 }
 const lum = ([r, g, b]) => 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
 const contrast = (a, b) => {
@@ -46,57 +50,91 @@ const over = (fg, bg, a) => fg.map((c, i) => Math.round(a * c + (1 - a) * bg[i])
 
 /* ---- 1. contract completeness ---------------------------------------------- */
 
-test("all required semantic tokens are defined in @theme", () => {
+test('all required semantic tokens are defined in @theme', () => {
   const required = [
-    "--color-background", "--color-foreground", "--color-card", "--color-popover",
-    "--color-primary", "--color-primary-foreground", "--color-primary-light",
-    "--color-primary-hover", "--color-secondary", "--color-muted",
-    "--color-muted-foreground", "--color-accent", "--color-destructive",
-    "--color-border", "--color-input", "--color-ring",
-    "--color-ink", "--color-ink-soft", "--color-ink-faint",
-    "--color-success", "--color-warning", "--color-info",
-    "--color-purple", "--color-purple-dim", "--color-navy", "--color-surface",
-    "--font-sans", "--font-display", "--font-mono",
-    "--radius-sm", "--radius-md", "--radius-lg",
-    "--radius-field", "--radius-button", "--radius-card", "--radius-panel", "--radius-pill",
+    '--color-background',
+    '--color-foreground',
+    '--color-card',
+    '--color-popover',
+    '--color-primary',
+    '--color-primary-foreground',
+    '--color-primary-light',
+    '--color-primary-hover',
+    '--color-secondary',
+    '--color-muted',
+    '--color-muted-foreground',
+    '--color-accent',
+    '--color-destructive',
+    '--color-border',
+    '--color-input',
+    '--color-ring',
+    '--color-ink',
+    '--color-ink-soft',
+    '--color-ink-faint',
+    '--color-success',
+    '--color-warning',
+    '--color-info',
+    '--color-purple',
+    '--color-purple-dim',
+    '--color-navy',
+    '--color-surface',
+    '--font-sans',
+    '--font-display',
+    '--font-mono',
+    '--radius-sm',
+    '--radius-md',
+    '--radius-lg',
+    '--radius-field',
+    '--radius-button',
+    '--radius-card',
+    '--radius-panel',
+    '--radius-pill',
   ];
   for (const key of required) assert.ok(key in theme, `missing @theme token: ${key}`);
 });
 
 /* ---- 2. light/dark parity — both themes define the same triplet set -------- */
 
-test("light and dark define an identical set of palette triplets", () => {
-  const dk = Object.keys(dark).filter((k) => k.endsWith("-rgb")).sort();
-  const lt = Object.keys(light).filter((k) => k.endsWith("-rgb")).sort();
-  assert.deepEqual(lt, dk, "light theme is missing/adding triplets vs dark");
+test('light and dark define an identical set of palette triplets', () => {
+  const dk = Object.keys(dark)
+    .filter(k => k.endsWith('-rgb'))
+    .sort();
+  const lt = Object.keys(light)
+    .filter(k => k.endsWith('-rgb'))
+    .sort();
+  assert.deepEqual(lt, dk, 'light theme is missing/adding triplets vs dark');
 });
 
-test("every triplet is three 0–255 integers", () => {
+test('every triplet is three 0–255 integers', () => {
   for (const obj of [dark, light]) {
     for (const [k, v] of Object.entries(obj)) {
-      if (!k.endsWith("-rgb")) continue;
+      if (!k.endsWith('-rgb')) continue;
       const ch = v.split(/\s+/).map(Number);
       assert.equal(ch.length, 3, `${k} is not 3 channels: "${v}"`);
-      for (const c of ch) assert.ok(Number.isInteger(c) && c >= 0 && c <= 255, `${k} bad channel ${c}`);
+      for (const c of ch)
+        assert.ok(Number.isInteger(c) && c >= 0 && c <= 255, `${k} bad channel ${c}`);
     }
   }
 });
 
 /* ---- 3. brand is the canonical purple in both themes ----------------------- */
 
-test("brand stays #7B5CF5 (123 92 245) in both themes", () => {
-  assert.deepEqual(triplet(dark, "--brand-rgb"), [123, 92, 245]);
-  assert.deepEqual(triplet(light, "--brand-rgb"), [123, 92, 245]);
+test('brand stays #7B5CF5 (123 92 245) in both themes', () => {
+  assert.deepEqual(triplet(dark, '--brand-rgb'), [123, 92, 245]);
+  assert.deepEqual(triplet(light, '--brand-rgb'), [123, 92, 245]);
 });
 
 /* ---- 4. WCAG contrast on the text hierarchy, per theme --------------------- */
 
-for (const [name, p] of [["dark", dark], ["light", light]]) {
-  const bg = triplet(p, "--bg-rgb");
-  const card = triplet(p, "--card-rgb");
-  const ink = triplet(p, "--ink-rgb");
-  const brandInk = triplet(p, "--brand-ink-rgb");
-  const brand = triplet(p, "--brand-rgb");
+for (const [name, p] of [
+  ['dark', dark],
+  ['light', light],
+]) {
+  const bg = triplet(p, '--bg-rgb');
+  const card = triplet(p, '--card-rgb');
+  const ink = triplet(p, '--ink-rgb');
+  const brandInk = triplet(p, '--brand-ink-rgb');
+  const brand = triplet(p, '--brand-rgb');
 
   test(`[${name}] foreground ink on background ≥ 7:1`, () => {
     assert.ok(contrast(ink, bg) >= 7, `ink/bg = ${contrast(ink, bg).toFixed(2)}`);
