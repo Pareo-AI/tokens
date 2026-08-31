@@ -72,12 +72,21 @@ Token contrast is enforced by the test suite (`test/tokens.test.mjs`, WCAG 2.1):
 - `ink-faint` uses **0.5** alpha (not 0.45): at 0.45 it measured **2.97:1** over
   the light canvas — below the 3:1 UI threshold. 0.5 yields 3.42:1.
 - `brand-ink` on card ≥ 4.5:1 in both themes (used for links / inline code).
-- **White on brand-fill `#7B5CF5` measures ≈ 4.46:1** — marginally below AA-normal
-  (4.5:1). `#7B5CF5` is the established, shipped brand color; we do not darken it.
-  Brand-fill buttons carry white, semibold, interactive labels, which fall under
-  the 3:1 UI / large-text thresholds (WCAG 1.4.11 / 1.4.3-large), so this is
-  compliant in context. Guidance: keep brand-fill button labels ≥ semibold; do
-  not use `#7B5CF5` as a background for long-form or small body copy in white.
+- **White on brand-fill needs `--brand-solid-rgb`, not `--brand-rgb`.**
+  `#7B5CF5` is the established, shipped brand color and it does not move. But
+  white on it measures 4.47:1, just under AA-normal, so it cannot be the surface
+  under a white label. Filled controls therefore paint with `--brand-solid-rgb`
+  (`#7350EE`, 5.11:1 with white), one step deeper and the same violet to the eye;
+  `--color-primary` resolves to it. `--brand-rgb` stays the swatch, border, icon
+  and large-display-text color.
+
+  *Correction, 2026-08-31.* This note previously claimed the pairing was
+  compliant because brand-fill labels "fall under the 3:1 UI / large-text
+  thresholds (WCAG 1.4.11 / 1.4.3-large)". That was wrong on both halves. WCAG
+  large text is 24px, or 18.66px bold; every shipped brand-fill label is 12px to
+  16px semibold, so none qualify and 1.4.3 asks for 4.5:1. And 1.4.11 governs a
+  component's boundary against its surroundings, not the text inside it. Chrome's
+  accessibility audit had been reporting the failure on every filled CTA.
 
 ## Alternatives considered
 

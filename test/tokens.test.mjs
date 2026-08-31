@@ -135,6 +135,7 @@ for (const [name, p] of [
   const ink = triplet(p, '--ink-rgb');
   const brandInk = triplet(p, '--brand-ink-rgb');
   const brand = triplet(p, '--brand-rgb');
+  const brandSolid = triplet(p, '--brand-solid-rgb');
 
   test(`[${name}] foreground ink on background ≥ 7:1`, () => {
     assert.ok(contrast(ink, bg) >= 7, `ink/bg = ${contrast(ink, bg).toFixed(2)}`);
@@ -155,11 +156,26 @@ for (const [name, p] of [
     assert.ok(c >= 4.5, `brand-ink/card = ${c.toFixed(2)}`);
   });
 
-  // Brand-fill buttons carry white, semibold, interactive labels → governed by the
-  // 3:1 UI/large-text threshold (WCAG 1.4.11 / 1.4.3-large), not AA-normal 4.5.
-  // Measured white-on-#7B5CF5 ≈ 4.46:1 — documented in docs/adr/0001.
-  test(`[${name}] white on brand-fill ≥ 3:1 (button labels)`, () => {
-    const c = contrast([255, 255, 255], brand);
-    assert.ok(c >= 3, `white/brand = ${c.toFixed(2)}`);
+  // --brand-rgb as a swatch, border or icon colour, and behind large display text
+  // only: as a UI surface it has to clear 3:1 (WCAG 1.4.11).
+  test(`[${name}] brand-fill against the canvas >= 3:1 (component boundary)`, () => {
+    const c = contrast(brand, bg);
+    assert.ok(c >= 3, `brand/bg = ${c.toFixed(2)}`);
+  });
+
+  // The fill that actually carries white button labels. Those labels ship at
+  // 12-16px semibold, which is not WCAG "large text" (24px, or 18.66px bold), so
+  // 1.4.3 asks for 4.5:1 and the 1.4.11 3:1 threshold does not apply to them.
+  // --brand-rgb measures 4.47:1 and cannot pass; --brand-solid-rgb is the fill.
+  test(`[${name}] white on brand-solid >= 4.5:1 (AA normal, button labels)`, () => {
+    const c = contrast([255, 255, 255], brandSolid);
+    assert.ok(c >= 4.5, `white/brand-solid = ${c.toFixed(2)}`);
+  });
+
+  // The two must stay the same violet to the eye; a big drift means someone
+  // repainted the brand through the back door.
+  test(`[${name}] brand-solid stays within a hair of brand`, () => {
+    const drift = Math.max(...brand.map((c, i) => Math.abs(c - brandSolid[i])));
+    assert.ok(drift <= 16, `brand-solid drifted ${drift}/255 from brand`);
   });
 }

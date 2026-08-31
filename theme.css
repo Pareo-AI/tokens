@@ -35,6 +35,7 @@
   --navy-rgb: 13 13 26;          /* deepest surface     (#0D0D1A)  */
   --brand-rgb: 123 92 245;       /* brand violet        (#7B5CF5)  */
   --brand-ink-rgb: 184 156 255;  /* readable brand text (#B89CFF)  */
+  --brand-solid-rgb: 115 80 238; /* AA fill under white (#7350EE)  */
   --brand-hover-rgb: 109 78 224; /* brand pressed/hover (#6D4EE0)  */
 }
 
@@ -46,6 +47,7 @@
   --navy-rgb: 237 239 252;       /* soft indigo tint    (#EDEFFC)  */
   --brand-rgb: 123 92 245;       /* brand violet (kept vivid)      */
   --brand-ink-rgb: 108 71 179;   /* deep violet, AA on white (#6C47B3) */
+  --brand-solid-rgb: 115 80 238; /* AA fill under white (#7350EE)  */
   --brand-hover-rgb: 109 78 224; /* brand pressed/hover            */
 }
 
@@ -63,7 +65,13 @@
   --color-card-foreground: rgb(var(--ink-rgb));
   --color-popover: rgb(var(--card-rgb));
   --color-popover-foreground: rgb(var(--ink-rgb));
-  --color-primary: rgb(var(--brand-rgb));
+  /* The fill under a white label, not the brand swatch. White on --brand-rgb is
+     4.47:1, just under AA-normal, and every shipped brand-fill label is 12-16px
+     semibold, which is not WCAG "large text" (24px, or 18.66px bold). So the
+     pairing needs 4.5:1 and --brand-rgb cannot carry it. --brand-solid-rgb is one
+     step deeper (5.11:1) and stays the same violet to the eye. --brand-rgb keeps
+     its pinned value for swatches, borders, icons and large display text. */
+  --color-primary: rgb(var(--brand-solid-rgb));
   --color-primary-foreground: #ffffff;
   --color-primary-light: rgb(var(--brand-ink-rgb));
   --color-primary-hover: rgb(var(--brand-hover-rgb));
