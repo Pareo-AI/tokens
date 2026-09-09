@@ -87,6 +87,16 @@ Token contrast is enforced by the test suite (`test/tokens.test.mjs`, WCAG 2.1):
   16px semibold, so none qualify and 1.4.3 asks for 4.5:1. And 1.4.11 governs a
   component's boundary against its surroundings, not the text inside it. Chrome's
   accessibility audit had been reporting the failure on every filled CTA.
+- **Brand ink on a brand tint needs `--brand-tint-ink-rgb`, not `--brand-ink-rgb`.**
+  `--brand-ink-rgb` is calibrated AA on the page canvas and on white cards, but
+  not on a brand tint sitting over the console's translucent navy rail, where a
+  brand tint and a mid-violet ink converge. Measured worst case in the light
+  theme: brand ink on the stacked brand/brand nav-pill tint over the rail fell to
+  3.79:1. `--brand-tint-ink-rgb` (`#5B3C96`) is one step deeper, calibrated to
+  clear 4.5:1 on brand tints up to 0.32 alpha; `--color-primary-on-tint`
+  resolves to it. `--color-primary-light` stays the brand text color on neutral
+  surfaces. The dark value is unchanged from `--brand-ink-rgb`: dark already
+  clears AA on every brand tint.
 
 ## Alternatives considered
 

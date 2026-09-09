@@ -59,6 +59,7 @@ test('all required semantic tokens are defined in @theme', () => {
     '--color-primary',
     '--color-primary-foreground',
     '--color-primary-light',
+    '--color-primary-on-tint',
     '--color-primary-hover',
     '--color-secondary',
     '--color-muted',
@@ -136,6 +137,7 @@ for (const [name, p] of [
   const brandInk = triplet(p, '--brand-ink-rgb');
   const brand = triplet(p, '--brand-rgb');
   const brandSolid = triplet(p, '--brand-solid-rgb');
+  const brandTintInk = triplet(p, '--brand-tint-ink-rgb');
 
   test(`[${name}] foreground ink on background ≥ 7:1`, () => {
     assert.ok(contrast(ink, bg) >= 7, `ink/bg = ${contrast(ink, bg).toFixed(2)}`);
@@ -177,5 +179,36 @@ for (const [name, p] of [
   test(`[${name}] brand-solid stays within a hair of brand`, () => {
     const drift = Math.max(...brand.map((c, i) => Math.abs(c - brandSolid[i])));
     assert.ok(drift <= 16, `brand-solid drifted ${drift}/255 from brand`);
+  });
+
+  // The console rail is not a card: it is a translucent navy over a canvas that
+  // carries brand-tinted "atmosphere" gradients, so a brand tint sitting inside
+  // it composites over a darker, already-brand-tinted surface. Measuring
+  // brand-tint-ink against a plain card passes and hides the real failure.
+  const gridAlpha = name === 'light' ? 0.05 : 0.045;
+  const bloom = 0.16; // brightest atmosphere ellipse alpha, worst case
+  const railBase = (p, bloom) =>
+    over(
+      triplet(p, '--navy-rgb'),
+      over(brand, over(brand, triplet(p, '--bg-rgb'), gridAlpha), bloom),
+      0.72
+    );
+  const rail = railBase(p, bloom);
+
+  test(`[${name}] brand-tint-ink on the 0.18 avatar tint over the rail >= 4.5:1`, () => {
+    const bg = over(brand, over(ink, rail, 0.04), 0.18);
+    const c = contrast(brandTintInk, bg);
+    assert.ok(c >= 4.5, `brand-tint-ink/avatar-tint = ${c.toFixed(2)}`);
+  });
+
+  test(`[${name}] brand-tint-ink on the stacked 0.20/0.14 nav pill tint over the rail >= 4.5:1`, () => {
+    const bg = over(brand, over(brand, rail, 0.14), 0.2);
+    const c = contrast(brandTintInk, bg);
+    assert.ok(c >= 4.5, `brand-tint-ink/nav-pill-tint = ${c.toFixed(2)}`);
+  });
+
+  test(`[${name}] brand-tint-ink stays in the brand violet family`, () => {
+    const drift = Math.max(...brandTintInk.map((c, i) => Math.abs(c - brandInk[i])));
+    assert.ok(drift <= 96, `brand-tint-ink drifted ${drift}/255 from brand-ink`);
   });
 }

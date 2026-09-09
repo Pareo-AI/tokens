@@ -35,6 +35,7 @@
   --navy-rgb: 13 13 26;          /* deepest surface     (#0D0D1A)  */
   --brand-rgb: 123 92 245;       /* brand violet        (#7B5CF5)  */
   --brand-ink-rgb: 184 156 255;  /* readable brand text (#B89CFF)  */
+  --brand-tint-ink-rgb: 184 156 255; /* ink on a brand tint  (#B89CFF)  */
   --brand-solid-rgb: 115 80 238; /* AA fill under white (#7350EE)  */
   --brand-hover-rgb: 109 78 224; /* brand pressed/hover (#6D4EE0)  */
 }
@@ -47,6 +48,7 @@
   --navy-rgb: 237 239 252;       /* soft indigo tint    (#EDEFFC)  */
   --brand-rgb: 123 92 245;       /* brand violet (kept vivid)      */
   --brand-ink-rgb: 108 71 179;   /* deep violet, AA on white (#6C47B3) */
+  --brand-tint-ink-rgb: 91 60 150;   /* ink on a brand tint  (#5B3C96)  */
   --brand-solid-rgb: 115 80 238; /* AA fill under white (#7350EE)  */
   --brand-hover-rgb: 109 78 224; /* brand pressed/hover            */
 }
@@ -74,6 +76,14 @@
   --color-primary: rgb(var(--brand-solid-rgb));
   --color-primary-foreground: #ffffff;
   --color-primary-light: rgb(var(--brand-ink-rgb));
+  /* Brand ink for text and icons that sit on a brand tint, not on the canvas.
+     --color-primary-light stays the brand text color on neutral surfaces. The
+     console rail is a translucent navy over a brand-tinted canvas, so a brand
+     tint inside it composites over a darker surface than a card; there, a
+     brand tint and a mid-violet ink converge and lose contrast. The light
+     value is deeper to compensate, calibrated to clear 4.5:1 on brand tints
+     up to 0.32 alpha. */
+  --color-primary-on-tint: rgb(var(--brand-tint-ink-rgb));
   --color-primary-hover: rgb(var(--brand-hover-rgb));
   --color-secondary: rgb(var(--navy-rgb));
   --color-secondary-foreground: rgb(var(--ink-rgb));

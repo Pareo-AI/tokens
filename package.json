@@ -1,6 +1,6 @@
 {
   "name": "@pareo/tokens",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "The single source of truth for the Pareo design system — brand colors, type, radii and theming, framework-agnostic.",
   "license": "UNLICENSED",
   "repository": {
