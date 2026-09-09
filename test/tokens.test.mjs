@@ -187,13 +187,11 @@ for (const [name, p] of [
   // brand-tint-ink against a plain card passes and hides the real failure.
   const gridAlpha = name === 'light' ? 0.05 : 0.045;
   const bloom = 0.16; // brightest atmosphere ellipse alpha, worst case
-  const railBase = (p, bloom) =>
-    over(
-      triplet(p, '--navy-rgb'),
-      over(brand, over(brand, triplet(p, '--bg-rgb'), gridAlpha), bloom),
-      0.72
-    );
-  const rail = railBase(p, bloom);
+  const rail = over(
+    triplet(p, '--navy-rgb'),
+    over(brand, over(brand, triplet(p, '--bg-rgb'), gridAlpha), bloom),
+    0.72
+  );
 
   test(`[${name}] brand-tint-ink on the 0.18 avatar tint over the rail >= 4.5:1`, () => {
     const bg = over(brand, over(ink, rail, 0.04), 0.18);
@@ -208,7 +206,10 @@ for (const [name, p] of [
   });
 
   test(`[${name}] brand-tint-ink stays in the brand violet family`, () => {
+    // 40, not a round large number: the real drift is 29/255 (light) and 0 (dark), and a
+    // bound loose enough to admit anything would admit an off-hue colour. A magenta at
+    // 90/255 drift passed the first version of this guard.
     const drift = Math.max(...brandTintInk.map((c, i) => Math.abs(c - brandInk[i])));
-    assert.ok(drift <= 96, `brand-tint-ink drifted ${drift}/255 from brand-ink`);
+    assert.ok(drift <= 40, `brand-tint-ink drifted ${drift}/255 from brand-ink`);
   });
 }
