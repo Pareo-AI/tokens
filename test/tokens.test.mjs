@@ -29,7 +29,7 @@ function block(selector) {
 }
 
 const dark = block(':root[data-theme="dark"]');
-const light = block('[data-theme="light"]');
+const light = block(':root[data-theme="light"]');
 const theme = block('@theme');
 
 /* ---- color math (sRGB → relative luminance → WCAG contrast) ---------------- */
