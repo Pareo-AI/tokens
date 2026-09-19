@@ -33,8 +33,10 @@ Each app loads the IBM Plex font its own way and exposes the family through
 `--font-ibm` (and `--font-ibm-mono`); the tokens reference those vars with a
 `"IBM Plex Sans"` fallback, so they stay valid before the loader wires up.
 
-Toggle themes by stamping `data-theme="dark|light"` on `<html>` (see each app's
+Toggle themes by stamping `data-theme="dark|light|pro"` on `<html>` (see each app's
 no-flash theme script). `:root` carries the dark palette as the no-JS fallback.
+`pro` is white on black for Pareo Pro: the brand is the ink, the primary fill is white
+under a black label (`--primary-fg-rgb`).
 
 ## Contributing
 

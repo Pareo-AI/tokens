@@ -30,6 +30,7 @@ function block(selector) {
 
 const dark = block(':root[data-theme="dark"]');
 const light = block(':root[data-theme="light"]');
+const pro = block(':root[data-theme="pro"]');
 const theme = block('@theme');
 
 /* ---- color math (sRGB → relative luminance → WCAG contrast) ---------------- */
@@ -106,8 +107,18 @@ test('light and dark define an identical set of palette triplets', () => {
   assert.deepEqual(lt, dk, 'light theme is missing/adding triplets vs dark');
 });
 
+test('pro defines the same palette triplets as dark', () => {
+  const dk = Object.keys(dark)
+    .filter(k => k.endsWith('-rgb'))
+    .sort();
+  const pr = Object.keys(pro)
+    .filter(k => k.endsWith('-rgb'))
+    .sort();
+  assert.deepEqual(pr, dk, 'pro theme is missing/adding triplets vs dark');
+});
+
 test('every triplet is three 0–255 integers', () => {
-  for (const obj of [dark, light]) {
+  for (const obj of [dark, light, pro]) {
     for (const [k, v] of Object.entries(obj)) {
       if (!k.endsWith('-rgb')) continue;
       const ch = v.split(/\s+/).map(Number);
@@ -125,11 +136,20 @@ test('brand stays #7B5CF5 (123 92 245) in both themes', () => {
   assert.deepEqual(triplet(light, '--brand-rgb'), [123, 92, 245]);
 });
 
+// Pro is monochrome on purpose: the brand is the ink. A colour that crept in here
+// would be a second brand.
+test('pro brand is white and its ground is black', () => {
+  assert.deepEqual(triplet(pro, '--brand-rgb'), [255, 255, 255]);
+  assert.deepEqual(triplet(pro, '--bg-rgb'), [0, 0, 0]);
+  assert.deepEqual(triplet(pro, '--primary-fg-rgb'), [0, 0, 0]);
+});
+
 /* ---- 4. WCAG contrast on the text hierarchy, per theme --------------------- */
 
 for (const [name, p] of [
   ['dark', dark],
   ['light', light],
+  ['pro', pro],
 ]) {
   const bg = triplet(p, '--bg-rgb');
   const card = triplet(p, '--card-rgb');
@@ -138,6 +158,7 @@ for (const [name, p] of [
   const brand = triplet(p, '--brand-rgb');
   const brandSolid = triplet(p, '--brand-solid-rgb');
   const brandTintInk = triplet(p, '--brand-tint-ink-rgb');
+  const primaryFg = triplet(p, '--primary-fg-rgb');
 
   test(`[${name}] foreground ink on background ≥ 7:1`, () => {
     assert.ok(contrast(ink, bg) >= 7, `ink/bg = ${contrast(ink, bg).toFixed(2)}`);
@@ -169,9 +190,9 @@ for (const [name, p] of [
   // 12-16px semibold, which is not WCAG "large text" (24px, or 18.66px bold), so
   // 1.4.3 asks for 4.5:1 and the 1.4.11 3:1 threshold does not apply to them.
   // --brand-rgb measures 4.47:1 and cannot pass; --brand-solid-rgb is the fill.
-  test(`[${name}] white on brand-solid >= 4.5:1 (AA normal, button labels)`, () => {
-    const c = contrast([255, 255, 255], brandSolid);
-    assert.ok(c >= 4.5, `white/brand-solid = ${c.toFixed(2)}`);
+  test(`[${name}] primary label on brand-solid >= 4.5:1 (AA normal, button labels)`, () => {
+    const c = contrast(primaryFg, brandSolid);
+    assert.ok(c >= 4.5, `primary-fg/brand-solid = ${c.toFixed(2)}`);
   });
 
   // The two must stay the same violet to the eye; a big drift means someone

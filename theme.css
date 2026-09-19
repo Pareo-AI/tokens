@@ -38,6 +38,7 @@
   --brand-tint-ink-rgb: 184 156 255; /* ink on a brand tint  (#B89CFF)  */
   --brand-solid-rgb: 115 80 238; /* AA fill under white (#7350EE)  */
   --brand-hover-rgb: 109 78 224; /* brand pressed/hover (#6D4EE0)  */
+  --primary-fg-rgb: 255 255 255; /* label on the primary fill      */
 }
 
 :root[data-theme="light"] {
@@ -51,6 +52,26 @@
   --brand-tint-ink-rgb: 91 60 150;   /* ink on a brand tint  (#5B3C96)  */
   --brand-solid-rgb: 115 80 238; /* AA fill under white (#7350EE)  */
   --brand-hover-rgb: 109 78 224; /* brand pressed/hover            */
+  --primary-fg-rgb: 255 255 255; /* label on the primary fill      */
+}
+
+/* Pareo Pro: white on black, no colour but the status colours. The brand IS
+   the ink, so every brand tint becomes a white tint and the primary fill is
+   white under a black label. Stamped on <html> while the route is under /pro
+   (platform ADR-0200). Same triplet set as dark and light, so a component
+   that follows the tokens follows this theme without a change. */
+:root[data-theme="pro"] {
+  --ink-rgb: 255 255 255;
+  --bg-rgb: 0 0 0;
+  --card-rgb: 14 14 14;
+  --surface-rgb: 10 10 10;
+  --navy-rgb: 6 6 6;
+  --brand-rgb: 255 255 255;
+  --brand-ink-rgb: 255 255 255;
+  --brand-tint-ink-rgb: 255 255 255;
+  --brand-solid-rgb: 255 255 255;
+  --brand-hover-rgb: 224 224 224;
+  --primary-fg-rgb: 0 0 0;
 }
 
 @theme {
@@ -74,7 +95,7 @@
      step deeper (5.11:1) and stays the same violet to the eye. --brand-rgb keeps
      its pinned value for swatches, borders, icons and large display text. */
   --color-primary: rgb(var(--brand-solid-rgb));
-  --color-primary-foreground: #ffffff;
+  --color-primary-foreground: rgb(var(--primary-fg-rgb));
   --color-primary-light: rgb(var(--brand-ink-rgb));
   /* Brand ink for text and icons that sit on a brand tint, not on the canvas.
      --color-primary-light stays the brand text color on neutral surfaces. The
