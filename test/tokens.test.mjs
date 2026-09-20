@@ -4,27 +4,28 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const css = readFileSync(fileURLToPath(new URL('../theme.css', import.meta.url)), 'utf8');
+// Comments stripped once, so a block comment sitting between a `}` and the next
+// selector cannot glue onto that selector when the prelude is split on commas.
+const stripped = css.replace(/\/\*[\s\S]*?\*\//g, '');
 
 /* ---- tiny CSS helpers ------------------------------------------------------ */
 
-// Parse `--name: value;` declarations inside the {...} that follows `selector`.
+// Parse `--name: value;` declarations from every flat (nesting-free) block whose
+// selector list contains `selector` as one exact, comma-split entry, and merge
+// them. A concern added later in the file (the chart palette) reopens
+// `:root[data-theme="..."]` rather than growing one giant block, so a token for
+// a given theme can live in either block; later declarations win, same as the
+// CSS cascade for a repeated selector.
 function block(selector) {
-  const start = css.indexOf(selector);
-  assert.ok(start !== -1, `selector not found: ${selector}`);
-  const open = css.indexOf('{', start);
-  // walk to the matching close brace (handles nested-free @theme/:root blocks)
-  let depth = 0,
-    i = open;
-  for (; i < css.length; i++) {
-    if (css[i] === '{') depth++;
-    else if (css[i] === '}') {
-      depth--;
-      if (depth === 0) break;
-    }
-  }
-  const body = css.slice(open + 1, i);
+  let found = false;
   const out = {};
-  for (const m of body.matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)) out[m[1]] = m[2].trim();
+  for (const m of stripped.matchAll(/([^{}]*)\{([^{}]*)\}/g)) {
+    const parts = m[1].split(',').map(p => p.trim());
+    if (!parts.includes(selector)) continue;
+    found = true;
+    for (const decl of m[2].matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)) out[decl[1]] = decl[2].trim();
+  }
+  assert.ok(found, `selector not found: ${selector}`);
   return out;
 }
 
@@ -32,6 +33,7 @@ const dark = block(':root[data-theme="dark"]');
 const light = block(':root[data-theme="light"]');
 const pro = block(':root[data-theme="pro"]');
 const theme = block('@theme');
+const root = block(':root');
 
 /* ---- color math (sRGB → relative luminance → WCAG contrast) ---------------- */
 
@@ -95,6 +97,27 @@ test('all required semantic tokens are defined in @theme', () => {
   for (const key of required) assert.ok(key in theme, `missing @theme token: ${key}`);
 });
 
+test('all required chart tokens are defined for dark and light', () => {
+  const perTheme = [
+    '--chart-1',
+    '--chart-2',
+    '--chart-3',
+    '--chart-4',
+    '--chart-5',
+    '--chart-6',
+    '--chart-success',
+    '--chart-warning',
+    '--chart-info',
+    '--chart-danger',
+  ];
+  for (const key of perTheme) {
+    assert.ok(key in dark, `missing dark chart token: ${key}`);
+    assert.ok(key in light, `missing light chart token: ${key}`);
+  }
+  const shared = ['--chart-grid', '--chart-axis', '--chart-neutral'];
+  for (const key of shared) assert.ok(key in root, `missing chart token: ${key}`);
+});
+
 /* ---- 2. light/dark parity — both themes define the same triplet set -------- */
 
 test('light and dark define an identical set of palette triplets', () => {
@@ -105,6 +128,16 @@ test('light and dark define an identical set of palette triplets', () => {
     .filter(k => k.endsWith('-rgb'))
     .sort();
   assert.deepEqual(lt, dk, 'light theme is missing/adding triplets vs dark');
+});
+
+test('light and dark define an identical set of chart tokens', () => {
+  const dk = Object.keys(dark)
+    .filter(k => k.startsWith('--chart-'))
+    .sort();
+  const lt = Object.keys(light)
+    .filter(k => k.startsWith('--chart-'))
+    .sort();
+  assert.deepEqual(lt, dk, 'light theme is missing/adding chart tokens vs dark');
 });
 
 test('pro defines the same palette triplets as dark', () => {

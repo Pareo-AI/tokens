@@ -14,6 +14,7 @@ The single source of truth for the Pareo design system. One framework-agnostic
 - Semantic color tokens (shadcn vocabulary: `--color-background/foreground/card/primary/muted/border/...`).
 - Three-step text hierarchy: `--color-ink` / `--color-ink-soft` / `--color-ink-faint`.
 - Type tokens (IBM Plex Sans / IBM Plex Mono) and radius scale (base + semantic component radii).
+- Chart palette (`--chart-1` through `--chart-6`, plus status and chrome colours), as plain `:root` values so a page rendered outside the app can read them too.
 - A minimal canonical `@layer base` (body, headings, `mark`, `::selection`).
 
 ## Usage

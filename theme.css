@@ -74,6 +74,68 @@
   --primary-fg-rgb: 0 0 0;
 }
 
+/* ---- Chart palette: the single colour source for every chart, so a page drawn
+   outside the app (a report page rendered in Python, with no access to the app
+   CSS) reads the same colours as the app (docs/adr/0003).
+
+   Series 1 is the brand violet in both themes, so a chart reads as one system
+   with the rest of the app. Series 2 to 6 are darkened for light and brightened
+   for dark; each clears 3:1 against its own theme surface, the WCAG threshold
+   for a graphical object:
+
+     series   light (on #FBFBFE)          dark (on #16162A)
+     1        brand violet      4.33:1    brand violet      3.97:1
+     2        hsl(190 90% 34%)  3.87:1    hsl(190 85% 55%)  9.36:1
+     3        hsl(38 92% 40%)   3.18:1    hsl(38 92% 58%)   9.32:1
+     4        hsl(142 72% 33%)  3.93:1    hsl(142 65% 52%)  9.13:1
+     5        hsl(330 74% 45%)  5.23:1    hsl(330 80% 68%)  6.27:1
+     6        hsl(217 88% 48%)  5.25:1    hsl(217 91% 65%)  5.84:1
+
+   Status colours (--chart-success/warning/info/danger) carry the same
+   readability correction as the app's status text: fixed status colours are
+   correct as fills but too thin as body-weight strokes and labels on a light
+   canvas, so light gets a darkened value and dark matches the fixed value. */
+:root,
+:root[data-theme="dark"] {
+  --chart-1: rgb(var(--brand-rgb));
+  --chart-2: hsl(190 85% 55%);
+  --chart-3: hsl(38 92% 58%);
+  --chart-4: hsl(142 65% 52%);
+  --chart-5: hsl(330 80% 68%);
+  --chart-6: hsl(217 91% 65%);
+  --chart-success: hsl(142 70% 45%);
+  --chart-warning: hsl(38 92% 50%);
+  --chart-info: hsl(217 91% 65%);
+  --chart-danger: hsl(0 84% 70%);
+}
+
+:root[data-theme="light"] {
+  --chart-1: rgb(var(--brand-rgb));
+  --chart-2: hsl(190 90% 34%);
+  --chart-3: hsl(38 92% 40%);
+  --chart-4: hsl(142 72% 33%);
+  --chart-5: hsl(330 74% 45%);
+  --chart-6: hsl(217 88% 48%);
+  --chart-success: hsl(142 76% 29%);
+  --chart-warning: hsl(38 92% 32%);
+  --chart-info: hsl(217 91% 45%);
+  --chart-danger: hsl(0 72% 38%);
+}
+
+/* Chart chrome: the grid line, the axis line, and a neutral series that is
+   context rather than subject. Ink alpha, so it follows --ink-rgb and needs no
+   per-theme copy. */
+:root {
+  --chart-grid: rgb(var(--ink-rgb) / 0.08);
+  --chart-axis: rgb(var(--ink-rgb) / 0.45);
+  --chart-neutral: rgb(var(--ink-rgb) / 0.1);
+}
+
+/* The pro theme has no chart block of its own. [data-theme="pro"] overrides
+   only the palette primitives above, so it falls through to the dark chart
+   values here, and --chart-1 becomes white because --brand-rgb is white
+   under pro. */
+
 @theme {
   /* ---- Type: IBM Plex everywhere. Apps expose the loaded family through
      --font-ibm / --font-ibm-mono; the fallback keeps these valid pre-load. -- */
