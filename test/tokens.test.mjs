@@ -32,6 +32,7 @@ function block(selector) {
 const dark = block(':root[data-theme="dark"]');
 const light = block(':root[data-theme="light"]');
 const pro = block(':root[data-theme="pro"]');
+const proLight = block(':root[data-theme="pro-light"]');
 const theme = block('@theme');
 const root = block(':root');
 
@@ -140,18 +141,23 @@ test('light and dark define an identical set of chart tokens', () => {
   assert.deepEqual(lt, dk, 'light theme is missing/adding chart tokens vs dark');
 });
 
-test('pro defines the same palette triplets as dark', () => {
+test('pro and pro-light define the same palette triplets as dark', () => {
   const dk = Object.keys(dark)
     .filter(k => k.endsWith('-rgb'))
     .sort();
-  const pr = Object.keys(pro)
-    .filter(k => k.endsWith('-rgb'))
-    .sort();
-  assert.deepEqual(pr, dk, 'pro theme is missing/adding triplets vs dark');
+  for (const [name, obj] of [
+    ['pro', pro],
+    ['pro-light', proLight],
+  ]) {
+    const keys = Object.keys(obj)
+      .filter(k => k.endsWith('-rgb'))
+      .sort();
+    assert.deepEqual(keys, dk, `${name} theme is missing/adding triplets vs dark`);
+  }
 });
 
 test('every triplet is three 0–255 integers', () => {
-  for (const obj of [dark, light, pro]) {
+  for (const obj of [dark, light, pro, proLight]) {
     for (const [k, v] of Object.entries(obj)) {
       if (!k.endsWith('-rgb')) continue;
       const ch = v.split(/\s+/).map(Number);
@@ -177,12 +183,19 @@ test('pro brand is white and its ground is black', () => {
   assert.deepEqual(triplet(pro, '--primary-fg-rgb'), [0, 0, 0]);
 });
 
+test('pro-light brand is black and its primary label is white', () => {
+  assert.deepEqual(triplet(proLight, '--brand-rgb'), [10, 10, 10]);
+  assert.deepEqual(triplet(proLight, '--ink-rgb'), [10, 10, 10]);
+  assert.deepEqual(triplet(proLight, '--primary-fg-rgb'), [255, 255, 255]);
+});
+
 /* ---- 4. WCAG contrast on the text hierarchy, per theme --------------------- */
 
 for (const [name, p] of [
   ['dark', dark],
   ['light', light],
   ['pro', pro],
+  ['pro-light', proLight],
 ]) {
   const bg = triplet(p, '--bg-rgb');
   const card = triplet(p, '--card-rgb');

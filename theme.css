@@ -74,6 +74,27 @@
   --primary-fg-rgb: 0 0 0;
 }
 
+/* Pareo Pro, light: black ink on white, no colour but the status colours. The
+   brand is the ink, so every brand tint becomes a black tint and the primary
+   fill is black under a white label. Same triplet set as pro, so a component
+   that follows the tokens follows this theme without a change (platform
+   ADR-0250). */
+:root[data-theme="pro-light"] {
+  --ink-rgb: 10 10 10;
+  --bg-rgb: 250 250 250;
+  --card-rgb: 255 255 255;
+  --surface-rgb: 244 244 245;
+  --navy-rgb: 244 244 245;
+  --brand-rgb: 10 10 10;
+  --brand-ink-rgb: 10 10 10;
+  --brand-tint-ink-rgb: 10 10 10;
+  --brand-solid-rgb: 10 10 10;
+  --brand-hover-rgb: 40 40 40;
+  --primary-fg-rgb: 255 255 255;
+  /* Native chrome (form controls, scrollbars) follows color-scheme. */
+  color-scheme: light;
+}
+
 /* ---- Chart palette: the single colour source for every chart, so a page drawn
    outside the app (a report page rendered in Python, with no access to the app
    CSS) reads the same colours as the app (docs/adr/0003).
@@ -109,7 +130,8 @@
   --chart-danger: hsl(0 84% 70%);
 }
 
-:root[data-theme="light"] {
+:root[data-theme="light"],
+:root[data-theme="pro-light"] {
   --chart-1: rgb(var(--brand-rgb));
   --chart-2: hsl(190 90% 34%);
   --chart-3: hsl(38 92% 40%);
