@@ -130,8 +130,7 @@
   --chart-danger: hsl(0 84% 70%);
 }
 
-:root[data-theme="light"],
-:root[data-theme="pro-light"] {
+:root[data-theme="light"] {
   --chart-1: rgb(var(--brand-rgb));
   --chart-2: hsl(190 90% 34%);
   --chart-3: hsl(38 92% 40%);
@@ -153,10 +152,44 @@
   --chart-neutral: rgb(var(--ink-rgb) / 0.1);
 }
 
-/* The pro theme has no chart block of its own. [data-theme="pro"] overrides
-   only the palette primitives above, so it falls through to the dark chart
-   values here, and --chart-1 becomes white because --brand-rgb is white
-   under pro. */
+/* Pareo Pro chart blocks. Pro is monochrome plus status colours, so series 1 is
+   the ink (white on pro, near black on pro-light), series 2 to 4 and 6 are the
+   mockup's status hues, and series 5 is a mid ink tone, which keeps six series
+   apart without a second brand colour. Values are the mockup's own
+   (platform docs/plans/pareo-pro-redesign/mockup/base.css: --ok, --warn, --bad,
+   --info, --gridline, --ink-faint, --idle). Chart chrome is set again here
+   because the :root values are the product's. */
+:root[data-theme="pro"] {
+  --chart-1: rgb(var(--ink-rgb));
+  --chart-2: hsl(217 91% 66%);
+  --chart-3: hsl(38 92% 55%);
+  --chart-4: hsl(142 70% 45%);
+  --chart-5: rgb(var(--ink-rgb) / 0.55);
+  --chart-6: hsl(0 84% 68%);
+  --chart-success: hsl(142 70% 45%);
+  --chart-warning: hsl(38 92% 55%);
+  --chart-info: hsl(217 91% 66%);
+  --chart-danger: hsl(0 84% 68%);
+  --chart-grid: rgb(var(--ink-rgb) / 0.06);
+  --chart-axis: rgb(var(--ink-rgb) / 0.45);
+  --chart-neutral: rgb(var(--ink-rgb) / 0.16);
+}
+
+:root[data-theme="pro-light"] {
+  --chart-1: rgb(var(--ink-rgb));
+  --chart-2: hsl(217 88% 46%);
+  --chart-3: hsl(32 92% 36%);
+  --chart-4: hsl(142 76% 29%);
+  --chart-5: rgb(var(--ink-rgb) / 0.5);
+  --chart-6: hsl(0 72% 42%);
+  --chart-success: hsl(142 76% 29%);
+  --chart-warning: hsl(32 92% 36%);
+  --chart-info: hsl(217 88% 46%);
+  --chart-danger: hsl(0 72% 42%);
+  --chart-grid: rgb(var(--ink-rgb) / 0.08);
+  --chart-axis: rgb(var(--ink-rgb) / 0.48);
+  --chart-neutral: rgb(var(--ink-rgb) / 0.16);
+}
 
 @theme {
   /* ---- Type: IBM Plex everywhere. Apps expose the loaded family through

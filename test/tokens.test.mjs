@@ -280,3 +280,27 @@ for (const [name, p] of [
     assert.ok(drift <= 40, `brand-tint-ink drifted ${drift}/255 from brand-ink`);
   });
 }
+
+test('pro and pro-light carry their own complete chart block', () => {
+  const keys = [
+    '--chart-1',
+    '--chart-2',
+    '--chart-3',
+    '--chart-4',
+    '--chart-5',
+    '--chart-6',
+    '--chart-success',
+    '--chart-warning',
+    '--chart-info',
+    '--chart-danger',
+    '--chart-grid',
+    '--chart-axis',
+    '--chart-neutral',
+  ];
+  for (const [name, obj] of [
+    ['pro', pro],
+    ['pro-light', proLight],
+  ])
+    for (const key of keys) assert.ok(key in obj, `${name} lacks ${key}`);
+  assert.equal(pro['--chart-1'], 'rgb(var(--ink-rgb))');
+});
