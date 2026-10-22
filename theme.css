@@ -191,12 +191,80 @@
   --chart-neutral: rgb(var(--ink-rgb) / 0.16);
 }
 
+/* ---- Status text: a status colour that can carry words (docs/adr/0004).
+
+   --color-success / --color-warning / --color-info / --color-destructive are
+   correct as fills and too thin as text on a light canvas, so each theme sets
+   its own text value. Every one clears 4.5:1 on its own theme's background and
+   card (asserted in test/). Dark and light are the chart status values, pro and
+   pro-light the Pro mockup's, so a status reads the same in a chart and in a
+   label. `danger` is the text sibling --color-destructive never had. */
+:root,
+:root[data-theme="dark"] {
+  --success-text: hsl(142 70% 45%);
+  --warning-text: hsl(38 92% 50%);
+  --info-text: hsl(217 91% 65%);
+  --danger-text: hsl(0 84% 70%);
+}
+
+:root[data-theme="light"] {
+  --success-text: hsl(142 76% 29%);
+  --warning-text: hsl(38 92% 32%);
+  --info-text: hsl(217 91% 45%);
+  --danger-text: hsl(0 72% 38%);
+}
+
+:root[data-theme="pro"] {
+  --success-text: hsl(142 70% 45%);
+  --warning-text: hsl(38 92% 55%);
+  --info-text: hsl(217 91% 66%);
+  --danger-text: hsl(0 84% 68%);
+}
+
+:root[data-theme="pro-light"] {
+  --success-text: hsl(142 76% 29%);
+  --warning-text: hsl(32 92% 34%); /* the mockup's 36% is 4.41:1 on the canvas */
+  --info-text: hsl(217 88% 46%);
+  --danger-text: hsl(0 72% 42%);
+}
+
+/* ---- Motion: one ease and four durations for every surface (docs/adr/0004).
+   The same in every theme. A consumer switches motion off under
+   prefers-reduced-motion; that is behaviour, so it stays in the app. */
+:root {
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 150ms;
+  --dur-exit: 100ms;
+  --dur-base: 250ms;
+  --dur-slow: 500ms;
+}
+
 @theme {
   /* ---- Type: IBM Plex everywhere. Apps expose the loaded family through
      --font-ibm / --font-ibm-mono; the fallback keeps these valid pre-load. -- */
   --font-sans: var(--font-ibm, "IBM Plex Sans"), system-ui, sans-serif;
   --font-display: var(--font-ibm, "IBM Plex Sans"), system-ui, sans-serif;
   --font-mono: var(--font-ibm-mono, "IBM Plex Mono"), ui-monospace, monospace;
+
+  /* ---- Type scale (docs/adr/0004). Tailwind's own steps stay as they are:
+     xs 12, sm 14, base 16, lg 18, xl 20, 2xl 24, 3xl 30, 4xl 36, each with its
+     line height. The dense steps below fill the gaps a data-dense UI needs and
+     set the size only: the line height comes from a leading-* utility or the
+     parent, the same as the arbitrary text-[13px] they replace. The scale is
+     closed: a size that is not here is added here, never written as text-[Npx]. */
+  --text-9: 9px;   /* mono micro label, count dot      */
+  --text-10: 10px; /* mono caption, eyebrow            */
+  --text-11: 11px; /* meta line, chip                  */
+  --text-13: 13px; /* dense body, the app's base text  */
+  --text-15: 15px; /* reading text in a conversation   */
+  --text-17: 17px; /* document title                   */
+  --text-22: 22px; /* section headline                 */
+  --text-28: 28px; /* display figure, page headline    */
+
+  /* ---- Motion as Tailwind defaults: a bare transition-* takes the brand
+     motion, so a caller never types a duration or a curve. */
+  --default-transition-duration: var(--dur-fast);
+  --default-transition-timing-function: var(--ease);
 
   /* ---- Semantic color tokens (shadcn vocabulary) — all flip with the theme -- */
   --color-background: rgb(var(--bg-rgb));
@@ -246,6 +314,12 @@
   --color-success: hsl(142 70% 45%);
   --color-warning: hsl(38 92% 50%);
   --color-info: hsl(217 91% 65%);
+
+  /* ---- Status text, per theme (see the status text block above) ----------- */
+  --color-success-text: var(--success-text);
+  --color-warning-text: var(--warning-text);
+  --color-info-text: var(--info-text);
+  --color-danger-text: var(--danger-text);
 
   /* ---- Brand aliases (legacy .bg-pareo-*, .text-purple call sites) ---------- */
   --color-navy: rgb(var(--navy-rgb));

@@ -14,6 +14,9 @@ The single source of truth for the Pareo design system. One framework-agnostic
 - Semantic color tokens (shadcn vocabulary: `--color-background/foreground/card/primary/muted/border/...`).
 - Three-step text hierarchy: `--color-ink` / `--color-ink-soft` / `--color-ink-faint`.
 - Type tokens (IBM Plex Sans / IBM Plex Mono) and radius scale (base + semantic component radii).
+- Type scale: Tailwind's `xs` to `4xl`, plus the dense steps `text-9`, `-10`, `-11`, `-13`, `-15`, `-17`, `-22`, `-28` (size only, no line height). Register the dense steps with `tailwind-merge`, or it reads them as colours.
+- Status text (`--color-success-text`, `-warning-text`, `-info-text`, `-danger-text`), per theme, AA on background and card.
+- Motion: `--ease`, `--dur-fast`, `--dur-exit`, `--dur-base`, `--dur-slow`, also Tailwind's default transition.
 - Chart palette (`--chart-1` through `--chart-6`, plus status and chrome colours), as plain `:root` values so a page rendered outside the app can read them too.
 - A minimal canonical `@layer base` (body, headings, `mark`, `::selection`).
 

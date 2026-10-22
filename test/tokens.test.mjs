@@ -52,6 +52,17 @@ const contrast = (a, b) => {
 // composite an alpha foreground over an opaque background
 const over = (fg, bg, a) => fg.map((c, i) => Math.round(a * c + (1 - a) * bg[i]));
 
+// "hsl(142 70% 45%)" -> [r, g, b]
+function hsl(value) {
+  const m = value.match(/^hsl\(\s*([\d.]+)\s+([\d.]+)%\s+([\d.]+)%\s*\)$/);
+  assert.ok(m, `not a plain hsl(): ${value}`);
+  const [h, s, l] = [Number(m[1]), Number(m[2]) / 100, Number(m[3]) / 100];
+  const k = n => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
+  return [f(0), f(8), f(4)].map(c => Math.round(c * 255));
+}
+
 /* ---- 1. contract completeness ---------------------------------------------- */
 
 test('all required semantic tokens are defined in @theme', () => {
@@ -94,8 +105,57 @@ test('all required semantic tokens are defined in @theme', () => {
     '--radius-card',
     '--radius-panel',
     '--radius-pill',
+    '--color-success-text',
+    '--color-warning-text',
+    '--color-info-text',
+    '--color-danger-text',
+    '--default-transition-duration',
+    '--default-transition-timing-function',
   ];
   for (const key of required) assert.ok(key in theme, `missing @theme token: ${key}`);
+});
+
+test('motion is one ease and four durations on :root', () => {
+  for (const key of ['--ease', '--dur-fast', '--dur-exit', '--dur-base', '--dur-slow'])
+    assert.ok(key in root, `missing motion token: ${key}`);
+  for (const key of ['--dur-fast', '--dur-exit', '--dur-base', '--dur-slow'])
+    assert.match(root[key], /^\d+ms$/, `${key} is not a duration in ms`);
+});
+
+/* ---- type scale ------------------------------------------------------------ */
+
+// Tailwind's own steps. A dense step with one of these sizes would be a second
+// name for the same size, with a different line height: a trap, not a step.
+const TAILWIND_STEPS = new Set([12, 14, 16, 18, 20, 24, 30, 36]);
+const typeSteps = Object.entries(theme).filter(([k]) => /^--text-\d+$/.test(k));
+
+test('the dense type steps are named by their pixel size', () => {
+  assert.ok(typeSteps.length > 0, 'no dense type steps in @theme');
+  for (const [key, value] of typeSteps) {
+    assert.equal(value, `${key.slice('--text-'.length)}px`, `${key} must be its own size`);
+  }
+});
+
+test('no dense type step duplicates a Tailwind step', () => {
+  for (const [key, value] of typeSteps)
+    assert.ok(!TAILWIND_STEPS.has(Number.parseInt(value, 10)), `${key} duplicates a Tailwind step`);
+});
+
+test('the dense type steps set the size only', () => {
+  // A line height here would change every text-[Npx] the steps replace.
+  const lineHeights = Object.keys(theme).filter(k => /^--text-\d+--/.test(k));
+  assert.deepEqual(lineHeights, []);
+});
+
+test('the status text is defined in every theme', () => {
+  const keys = ['--success-text', '--warning-text', '--info-text', '--danger-text'];
+  for (const [name, obj] of [
+    ['dark', dark],
+    ['light', light],
+    ['pro', pro],
+    ['pro-light', proLight],
+  ])
+    for (const key of keys) assert.ok(key in obj, `${name} lacks ${key}`);
 });
 
 test('all required chart tokens are defined for dark and light', () => {
@@ -271,6 +331,19 @@ for (const [name, p] of [
     const c = contrast(brandTintInk, bg);
     assert.ok(c >= 4.5, `brand-tint-ink/nav-pill-tint = ${c.toFixed(2)}`);
   });
+
+  for (const key of ['--success-text', '--warning-text', '--info-text', '--danger-text']) {
+    test(`[${name}] ${key} on background and card >= 4.5:1 (AA normal)`, () => {
+      const text = hsl(p[key]);
+      for (const [ground, rgb] of [
+        ['background', bg],
+        ['card', card],
+      ]) {
+        const c = contrast(text, rgb);
+        assert.ok(c >= 4.5, `${key}/${ground} = ${c.toFixed(2)}`);
+      }
+    });
+  }
 
   test(`[${name}] brand-tint-ink stays in the brand violet family`, () => {
     // 40, not a round large number: the real drift is 29/255 (light) and 0 (dark), and a
