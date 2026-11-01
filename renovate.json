@@ -1,7 +1,10 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
+  "extends": ["config:recommended", "helpers:pinGitHubActionDigests"],
   "timezone": "UTC",
+  "minimumReleaseAge": "7 days",
+  "internalChecksFilter": "strict",
+  "vulnerabilityAlerts": { "enabled": true, "minimumReleaseAge": null },
   "schedule": ["before 6am on monday"],
   "prConcurrentLimit": 2,
   "semanticCommits": "enabled",
@@ -13,6 +16,11 @@
   "groupSlug": "all-dependencies",
   "ignorePaths": ["**/node_modules/**"],
   "packageRules": [
+    {
+      "description": "Our own packages come from our release pipeline and the private registry, so they skip the seven-day wait (same list as platform renovate.json).",
+      "matchPackageNames": ["@pareo/ui", "@pareo/tokens", "@pareo-ai/skimsheet-wasm", "skimsheet", "pareo-ocr"],
+      "minimumReleaseAge": "0 days"
+    },
     {
       "description": "Single PR: group every update together",
       "matchPackageNames": ["*"],
